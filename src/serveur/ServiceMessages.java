@@ -5,18 +5,19 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ServiceMessages implements Runnable{
 
-	private static List<String> clients; 
+	private static List<Socket> clients = new ArrayList<Socket>(); 
 	private final Socket client;
 	private static int cpt= 1;
 	private final int numero;
 
 	ServiceMessages(Socket socket){
 		this.client=socket;
-		this.clients.add(socket.toString());
+		this.clients.add(socket);
 		this.numero=cpt++;
 	}
 	
@@ -30,7 +31,9 @@ public class ServiceMessages implements Runnable{
 
 			//mettre en place système de chatbox
 			
-			
+			out.println("Bonjour votre nom ?");
+			out.println("write 'exit-chat' to quit chat");
+			String nom = in.readLine();
 //			out.println("Tapez le num�ro de cours ");
 //			int noCours = Integer.parseInt(in.readLine());
 //			out.println("Tapez le nombre de places souhait�es ");

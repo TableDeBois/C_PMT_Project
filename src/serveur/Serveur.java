@@ -8,7 +8,7 @@ public class Serveur implements Runnable {
 	private ServerSocket listen_socket;
 
 	// Cree un serveur TCP - objet de la classe ServerSocket
-	public void ServeurCours(int port) throws IOException {
+	public void ServeurMessages(int port) throws IOException {
 		listen_socket = new ServerSocket(port);
 	}
 

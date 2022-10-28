@@ -13,7 +13,9 @@ public class Client {
 		BufferedReader clavier = new BufferedReader(new InputStreamReader(System.in));			
 		// connexion
 		System.out.print("Tapez l'url de connexion (par défaut BTTP:localhost:1234)");
-		String url = args[0];
+		String url = "BTTP:localhost:8080";
+		//String url = clavier.readLine();
+		//String url = args[0];
 		try {validBTTP(url);} 
 		catch (Exception e) {
 				System.out.println(e.getMessage());
@@ -25,26 +27,37 @@ public class Client {
 			BufferedReader sin = new BufferedReader (new InputStreamReader(socket.getInputStream ( )));
 			PrintWriter sout = new PrintWriter (socket.getOutputStream ( ), true);
 			// Informe l'utilisateur de la connection
-			System.out.println("Connect� au serveur " + socket.getInetAddress() + ":"+ socket.getPort());
+			System.out.println("Connecté au serveur " + socket.getInetAddress() + ":"+ socket.getPort());
 			
 			String line;
 			
 			// protocole BTTP jusqu'� saisie de "0" ou fermeture cot� service
-			do {// r�ception et affichage de la question provenant du service
-				line = sin.readLine();
+			// r�ception et affichage de la question provenant du service
 				
-				if (line == null) break; // fermeture par le service
-				System.out.println(line);
+				ClientListener listener = new ClientListener(sin);
+				ClientWriter writer = new ClientWriter(sout,clavier);
+				listener.start();
+				writer.start();
 				
-				// prompt d'invite � la saisie
-				
-				System.out.print("->");
-				line = clavier.readLine();
-				
-				if (line.equals("")) break; // fermeture par le client
-				// envoie au service de la r�ponse saisie au clavier
-				sout.println(line);
-			} while (true);
+				do {
+				if (writer.isInterrupted()) {
+					listener.interrupt();
+					break;
+				}
+//				line = sin.readLine();
+//				
+//				if (line == null) break; // fermeture par le service
+//				System.out.println(line);
+//				
+//				// prompt d'invite � la saisie
+//				
+//				System.out.print("->");
+//				line = clavier.readLine();
+//				
+//				if (line.equals("")) break; // fermeture par le client
+//				// envoie au service de la r�ponse saisie au clavier
+//				sout.println(line);
+				} while (true);
 			socket.close();
 		}
 		catch (IOException e) { System.err.println("Fin du service"); }
