@@ -40,10 +40,10 @@ public class Client {
 				writer.start();
 				
 				do {
-				if (writer.isInterrupted()) {
-					listener.interrupt();
-					break;
-				}
+					if (writer.isInterrupted()) {
+						listener.interrupt();
+						break;
+					}
 //				line = sin.readLine();
 //				
 //				if (line == null) break; // fermeture par le service

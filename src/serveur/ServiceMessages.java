@@ -14,16 +14,17 @@ public class ServiceMessages implements Runnable{
 	private final Socket client;
 	private static int cpt= 1;
 	private final int numero;
+	private User user;
 
 	ServiceMessages(Socket socket){
 		this.client=socket;
-		this.clients.add(socket);
+		ServiceMessages.clients.add(socket);
 		this.numero=cpt++;
 	}
 	
 	@Override
 	public void run() {
-		System.out.println("*********Connexion "+this.numero+" démarrée");
+		System.out.println("*********Connexion "+this.numero+" démarrée*********");
 		String reponse = null;
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
@@ -31,9 +32,14 @@ public class ServiceMessages implements Runnable{
 
 			//mettre en place système de chatbox
 			
-			out.println("Bonjour votre nom ?");
-			out.println("write 'exit-chat' to quit chat");
+			out.println("Bonjour votre pseudo ?");
+			out.println("write 'exit-chat' to quit chat");  
 			String nom = in.readLine();
+			if(!nom.equals(null)) {
+				this.user = new User(nom);
+			}
+			
+			
 //			out.println("Tapez le num�ro de cours ");
 //			int noCours = Integer.parseInt(in.readLine());
 //			out.println("Tapez le nombre de places souhait�es ");
@@ -42,11 +48,12 @@ public class ServiceMessages implements Runnable{
 			
 		} catch (IOException e) {
 			// Fin du service d'inversion
-			System.out.println("*********Connexion "+this.numero+" terminée");
+			System.out.println("*********Connexion "+this.numero+" terminée*********");
 		}
 
 		try {
 			client.close();
+			System.out.println("*********Connexion "+this.numero+" terminée*********");
 		} catch (IOException e2) {
 		}
 	}
