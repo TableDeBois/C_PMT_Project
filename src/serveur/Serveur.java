@@ -18,7 +18,7 @@ public class Serveur implements Runnable {
 	public void run() {
 		try {
 			System.err.println("Lancement du serveur au port " + this.listen_socket.getLocalPort());
-			while (true)
+			while (!listen_socket.isClosed())
 				new Thread(new ServiceMessages(listen_socket.accept())).start();
 		} catch (IOException e) {
 			try {

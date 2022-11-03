@@ -7,12 +7,70 @@ public class Client {
 	private static int PORT;
 	private static String HOST; 
 	
+	private Socket socket;
+	private String pseudo;
+	private BufferedReader sin;
+	private PrintWriter out;
+	private BufferedReader clavier;
+	
+	private static final String SORTIE = "exit-chat";
+	
+		
+	public void clientWriter(ClientListener listener) {
+		try {
+			out.println(pseudo);
+			out.flush();
+			
+			while(socket.isConnected()) {
+				String msg = clavier.readLine();
+				if (msg.equals(SORTIE)) {
+					this.closeAll(socket, sin, out);
+					listener.interrupt();
+					break;
+				}
+				out.println(pseudo + " : " + msg);
+				out.flush();
+			}
+		}catch(IOException e) {
+			closeAll(socket, sin, out);
+		}
+	}
+	
+	public void closeAll(Socket socket, BufferedReader sin, PrintWriter out){
+		try {
+			if(sin!=null) {
+				sin.close();
+			}
+			if(out!=null) {
+				out.close();
+			}
+			if (socket!=null) {
+				socket.close();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+		
+	
+	Client(Socket socket, String name, BufferedReader clavier){
+		try {
+			this.socket=socket;
+			this.sin = new BufferedReader (new InputStreamReader(socket.getInputStream ( )));
+			this.clavier=clavier;
+			this.out =  new PrintWriter (socket.getOutputStream ( ), true);
+			this.pseudo = name;
+		}catch(IOException e) {
+			closeAll(socket, sin, out);
+		}
+	}
+	
 	public static void main(String[] args) throws IOException {
 		
 		//Partie BTTP a déterminer
 		BufferedReader clavier = new BufferedReader(new InputStreamReader(System.in));			
 		// connexion
-		System.out.print("Tapez l'url de connexion (par défaut BTTP:localhost:1234)");
+		//System.out.print("Tapez l'url de connexion (par défaut BTTP:localhost:1234)");
 		String url = "BTTP:localhost:8080";
 		//String url = clavier.readLine();
 		//String url = args[0];
@@ -21,49 +79,45 @@ public class Client {
 				System.out.println(e.getMessage());
 				return;
 		}
-		Socket socket = null;		
+		Socket socket = null;
+		
 		try {
+			System.out.println("Bienvenue dans le chat !");
+			System.out.println("Tapez 'exit-chat' pour quitter le chat");
+			System.out.println("Entrez votre pseudo : ");
+			String name = clavier.readLine();
 			socket = new Socket(HOST, PORT);
-			BufferedReader sin = new BufferedReader (new InputStreamReader(socket.getInputStream ( )));
-			PrintWriter sout = new PrintWriter (socket.getOutputStream ( ), true);
+			Client client = new Client(socket,name,clavier);
+//			BufferedReader sin = new BufferedReader (new InputStreamReader(socket.getInputStream ( )));
+//			PrintWriter sout = new PrintWriter (socket.getOutputStream ( ), true);
 			// Informe l'utilisateur de la connection
-			System.out.println("Connecté au serveur " + socket.getInetAddress() + ":"+ socket.getPort());
-			
-			String line;
-			
-			// protocole BTTP jusqu'� saisie de "0" ou fermeture cot� service
-			// r�ception et affichage de la question provenant du service
-				
-				ClientListener listener = new ClientListener(sin);
-				ClientWriter writer = new ClientWriter(sout,clavier);
-				listener.start();
-				writer.start();
-				
-				do {
-					if (writer.isInterrupted()) {
-						listener.interrupt();
-						break;
-					}
-//				line = sin.readLine();
+//			System.out.println("Connecté au serveur " + socket.getInetAddress() + ":"+ socket.getPort());
+//			
+//			String line;
+//			
+//			// protocole BTTP jusqu'� saisie de "0" ou fermeture cot� service
+//			// r�ception et affichage de la question provenant du service
 //				
-//				if (line == null) break; // fermeture par le service
-//				System.out.println(line);
+//				ClientListener listener = new ClientListener(socket,sin,sout);
+//				ClientWriter writer = new ClientWriter(sout,clavier);
+//				listener.start();
+//				writer.start();
 //				
-//				// prompt d'invite � la saisie
-//				
-//				System.out.print("->");
-//				line = clavier.readLine();
-//				
-//				if (line.equals("")) break; // fermeture par le client
-//				// envoie au service de la r�ponse saisie au clavier
-//				sout.println(line);
-				} while (true);
-			socket.close();
+//				do {
+//					if (writer.isInterrupted()) {
+//						listener.interrupt();
+//						break;
+//					}
+//				} while (true);
+//			socket.close();
+			ClientListener listener = new ClientListener(client.socket,client.sin,client.out);
+			listener.start();
+			client.clientWriter(listener);
 		}
 		catch (IOException e) { System.err.println("Fin du service"); }
 		// Refermer dans tous les cas la socket
 		try { if (socket != null) socket.close(); } 
-		catch (IOException e2) { ; }		
+		catch (IOException e2) { e2.printStackTrace();; }		
 	}
 
 	private static void validBTTP(String url) throws Exception { 
