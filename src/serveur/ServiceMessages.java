@@ -42,7 +42,15 @@ public class ServiceMessages implements Runnable{
 		while (client.isConnected()) {
 			try {
 				message = this.in.readLine();
-				sayAll(message);
+				int points = message.indexOf(":");
+				String m = message.substring(points+2);
+				m=m.substring(0,3);
+				if(m.equals("mp ")) {
+					privateMessage(message);
+				}else {
+					sayAll(message);
+				}
+				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -51,34 +59,30 @@ public class ServiceMessages implements Runnable{
 			}
 		}
 		
+	}
+	
+	public void privateMessage(String msg) {
+		int points = msg.indexOf(":");
+		String whisp = msg.substring(points+5);
+		int space = whisp.indexOf(" ");
+		String username;
+		if (space != -1) {
+			username = whisp.substring(0, space);
+			whisp = whisp.substring(space+1);
+			for (ServiceMessages service : clients) {
+				try {
+					if(service.user.getPseudo().equals(username)) {
+						service.out.println(msg.substring(0, points-1) + " vous dit : " + whisp);
+						service.out.flush();
+					}
+				} catch (Exception e) {
+					closeAll(client, in, out);
+				}
+			}
+		}else {
+			sayAll(msg);
+		}
 		
-		
-		
-//		System.out.println("*********Connexion "+this.numero+" démarrée*********");
-//		String reponse = null;
-//		try {
-//			BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-//			PrintWriter out = new PrintWriter(client.getOutputStream(), true);
-//
-//			//mettre en place système de chatbox
-//			
-//			out.println("Bonjour votre pseudo ?");
-//			out.println("write 'exit-chat' to quit chat");  
-//			String nom = in.readLine();
-//			if(!nom.equals(null)) {
-//				this.user = new User(nom);
-//			}
-//			
-//		} catch (IOException e) {
-//			// Fin du service d'inversion
-//			System.out.println("*********Connexion "+this.numero+" terminée*********");
-//		}
-//
-//		try {
-//			client.close();
-//			System.out.println("*********Connexion "+this.numero+" terminée*********");
-//		} catch (IOException e2) {
-//		}
 	}
 	
 	protected void finalize() throws Throwable {

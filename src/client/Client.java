@@ -84,32 +84,12 @@ public class Client {
 		try {
 			System.out.println("Bienvenue dans le chat !");
 			System.out.println("Tapez 'exit-chat' pour quitter le chat");
+			System.out.println("Tapez 'mp [pseudo] [message]' envoyer un message privé");
 			System.out.println("Entrez votre pseudo : ");
 			String name = clavier.readLine();
 			socket = new Socket(HOST, PORT);
 			Client client = new Client(socket,name,clavier);
-//			BufferedReader sin = new BufferedReader (new InputStreamReader(socket.getInputStream ( )));
-//			PrintWriter sout = new PrintWriter (socket.getOutputStream ( ), true);
-			// Informe l'utilisateur de la connection
-//			System.out.println("Connecté au serveur " + socket.getInetAddress() + ":"+ socket.getPort());
-//			
-//			String line;
-//			
-//			// protocole BTTP jusqu'� saisie de "0" ou fermeture cot� service
-//			// r�ception et affichage de la question provenant du service
-//				
-//				ClientListener listener = new ClientListener(socket,sin,sout);
-//				ClientWriter writer = new ClientWriter(sout,clavier);
-//				listener.start();
-//				writer.start();
-//				
-//				do {
-//					if (writer.isInterrupted()) {
-//						listener.interrupt();
-//						break;
-//					}
-//				} while (true);
-//			socket.close();
+			
 			ClientListener listener = new ClientListener(client.socket,client.sin,client.out);
 			listener.start();
 			client.clientWriter(listener);
