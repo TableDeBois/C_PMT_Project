@@ -13,8 +13,6 @@ public class Client {
 	private PrintWriter out;
 	private BufferedReader clavier;
 	
-	private static final String SORTIE = "exit-chat";
-	
 		
 	public void clientWriter(ClientListener listener) {
 		try {
@@ -23,11 +21,7 @@ public class Client {
 			
 			while(socket.isConnected()) {
 				String msg = clavier.readLine();
-				if (msg.equals(SORTIE)) {
-					this.closeAll(socket, sin, out);
-					listener.interrupt();
-					break;
-				}
+				
 				out.println(pseudo + " : " + msg);
 				out.flush();
 			}

@@ -18,6 +18,9 @@ public class ServiceMessages implements Runnable{
 	private final int numero;
 	private User user;
 
+	private static final String SORTIE = "exit-chat";
+	private static final String MESSAGE_PRIVE = "mp ";
+	
 	ServiceMessages(Socket socket){
 		this.numero=cpt++;
 		try {
@@ -43,11 +46,18 @@ public class ServiceMessages implements Runnable{
 			try {
 				message = this.in.readLine();
 				int points = message.indexOf(":");
-				String m = message.substring(points+2);
-				m=m.substring(0,3);
-				if(m.equals("mp ")) {
-					privateMessage(message);
-				}else {
+				if (message.substring(points+2).length() >4) {
+					String m = message.substring(points+2);
+					String mp=m.substring(0,3);
+					if(mp.equals(MESSAGE_PRIVE)) {
+						privateMessage(message);
+					}else if(m.equals(SORTIE)) {
+						this.removeService();
+						break;
+					}else {
+						sayAll(message);
+					}
+				}else{
 					sayAll(message);
 				}
 				
